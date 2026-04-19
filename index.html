@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -210,6 +209,7 @@
             <div class="q-card">
                 <span class="category" id="cat">Road Signs</span>
                 <div class="q-text" id="qText">Question here</div>
+                <div id="signImage" class="sign-image" style="display:none; margin: 15px auto; max-width: 200px;"></div>
                 <button class="audio-btn" onclick="speakCurrent()">🔊 Play Somali</button>
 
                 <div id="options"></div>
@@ -235,47 +235,160 @@
     </div>
 
     <script>
+        
+        // SVG Road Sign Images
+        const signImages = {
+            stop: `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                <rect x="20" y="20" width="160" height="160" fill="#dc3545" stroke="white" stroke-width="8"/>
+                <text x="100" y="115" font-family="Arial" font-size="40" font-weight="bold" fill="white" text-anchor="middle">STOP</text>
+            </svg>`,
+            yield: `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                <polygon points="100,30 170,160 30,160" fill="#ffc107" stroke="#dc3545" stroke-width="8"/>
+                <text x="100" y="135" font-family="Arial" font-size="28" font-weight="bold" fill="black" text-anchor="middle">YIELD</text>
+            </svg>`,
+            noentry: `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="100" cy="100" r="80" fill="#dc3545" stroke="white" stroke-width="8"/>
+                <rect x="40" y="85" width="120" height="30" fill="white"/>
+            </svg>`,
+            roundabout: `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="100" cy="100" r="70" fill="none" stroke="#007bff" stroke-width="12"/>
+                <path d="M140 60 L160 40 L170 70" fill="#007bff"/>
+                <path d="M60 140 L40 160 L70 170" fill="#007bff"/>
+                <path d="M140 140 L160 160 L130 170" fill="#007bff"/>
+                <path d="M60 60 L40 40 L70 30" fill="#007bff"/>
+            </svg>`,
+            speed50: `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="100" cy="100" r="80" fill="white" stroke="#dc3545" stroke-width="8"/>
+                <text x="100" y="125" font-family="Arial" font-size="60" font-weight="bold" fill="black" text-anchor="middle">50</text>
+            </svg>`,
+            speed100: `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="100" cy="100" r="80" fill="white" stroke="#dc3545" stroke-width="8"/>
+                <text x="100" y="125" font-family="Arial" font-size="50" font-weight="bold" fill="black" text-anchor="middle">100</text>
+            </svg>`,
+            speed120: `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="100" cy="100" r="80" fill="white" stroke="#dc3545" stroke-width="8"/>
+                <text x="100" y="125" font-family="Arial" font-size="50" font-weight="bold" fill="black" text-anchor="middle">120</text>
+            </svg>`,
+            tire: `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="100" cy="100" r="80" fill="#333" stroke="#666" stroke-width="4"/>
+                <circle cx="100" cy="100" r="50" fill="#555"/>
+                <circle cx="100" cy="100" r="30" fill="#777"/>
+                <text x="100" y="170" font-family="Arial" font-size="16" fill="white" text-anchor="middle">TREAD DEPTH</text>
+            </svg>`,
+            phone: `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                <rect x="70" y="30" width="60" height="100" fill="#333" rx="10"/>
+                <rect x="75" y="40" width="50" height="70" fill="#4a90e2"/>
+                <circle cx="100" cy="125" r="8" fill="#666"/>
+                <circle cx="100" cy="100" r="40" fill="none" stroke="#dc3545" stroke-width="5"/>
+                <line x1="70" y1="60" x2="130" y2="140" stroke="#dc3545" stroke-width="5"/>
+            </svg>`,
+            seatbelt: `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                <path d="M80 20 L80 180" stroke="#333" stroke-width="12"/>
+                <rect x="70" y="80" width="20" height="40" fill="#dc3545" rx="5"/>
+                <path d="M80 120 L120 180" stroke="#333" stroke-width="12"/>
+                <text x="100" y="40" font-family="Arial" font-size="16" fill="#dc3545" text-anchor="middle">FASTEN</text>
+            </svg>`,
+            school: `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                <rect x="50" y="60" width="100" height="80" fill="#ffc107" stroke="#333" stroke-width="3"/>
+                <path d="M40 60 L100 20 L160 60" fill="#dc3545"/>
+                <rect x="85" y="100" width="30" height="40" fill="#8B4513"/>
+                <circle cx="100" cy="85" r="15" fill="#4a90e2"/>
+                <text x="100" y="165" font-family="Arial" font-size="14" fill="#333" text-anchor="middle">SCHOOL ZONE</text>
+            </svg>`,
+            alcohol: `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                <path d="M70 20 L70 100 Q70 140 100 140 Q130 140 130 100 L130 20" fill="#4a90e2" stroke="#333" stroke-width="3"/>
+                <rect x="60" y="140" width="80" height="20" fill="#333" rx="5"/>
+                <text x="100" y="180" font-family="Arial" font-size="14" fill="#dc3545" text-anchor="middle">0.02% MAX (NEW DRIVERS)</text>
+            </svg>`,
+            cyclist: `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="60" cy="140" r="25" fill="none" stroke="#333" stroke-width="4"/>
+                <circle cx="140" cy="140" r="25" fill="none" stroke="#333" stroke-width="4"/>
+                <path d="M60 140 L100 100 L140 140 M100 100 L100 80 L80 70" stroke="#333" stroke-width="4" fill="none"/>
+                <circle cx="80" cy="70" r="10" fill="#333"/>
+                <text x="100" y="180" font-family="Arial" font-size="14" fill="#dc3545" text-anchor="middle">1 METER MINIMUM</text>
+            </svg>`,
+            handbrake: `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                <rect x="80" y="20" width="40" height="100" fill="#333" rx="5"/>
+                <rect x="70" y="110" width="60" height="10" fill="#666" rx="5"/>
+                <text x="100" y="160" font-family="Arial" font-size="16" fill="#333" text-anchor="middle">HANDBRAKE</text>
+            </svg>`,
+            fog: `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                <rect x="0" y="0" width="200" height="200" fill="#ccc"/>
+                <rect x="20" y="40" width="160" height="20" fill="#999" rx="10"/>
+                <rect x="20" y="80" width="160" height="20" fill="#999" rx="10"/>
+                <rect x="20" y="120" width="160" height="20" fill="#999" rx="10"/>
+                <text x="100" y="180" font-family="Arial" font-size="16" fill="#666" text-anchor="middle">FOG</text>
+            </svg>`,
+            distance: `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                <rect x="20" y="80" width="60" height="40" fill="#dc3545" rx="5"/>
+                <rect x="120" y="80" width="60" height="40" fill="#007bff" rx="5"/>
+                <path d="M80 100 L120 100" stroke="#333" stroke-width="3" stroke-dasharray="10,5"/>
+                <text x="100" y="70" font-family="Arial" font-size="14" fill="#333" text-anchor="middle">2 SECONDS</text>
+            </svg>`,
+            wetroad: `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                <rect x="0" y="0" width="200" height="200" fill="#555"/>
+                <path d="M0 50 Q50 30 100 50 T200 50" stroke="#4a90e2" stroke-width="3" fill="none"/>
+                <path d="M0 100 Q50 80 100 100 T200 100" stroke="#4a90e2" stroke-width="3" fill="none"/>
+                <path d="M0 150 Q50 130 100 150 T200 150" stroke="#4a90e2" stroke-width="3" fill="none"/>
+                <text x="100" y="180" font-family="Arial" font-size="16" fill="white" text-anchor="middle">WET ROAD</text>
+            </svg>`,
+            warning: `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                <polygon points="100,30 170,160 30,160" fill="#ffc107" stroke="#dc3545" stroke-width="8"/>
+                <text x="100" y="130" font-family="Arial" font-size="60" font-weight="bold" fill="black" text-anchor="middle">!</text>
+            </svg>`,
+            bluearrow: `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="100" cy="100" r="80" fill="#007bff" stroke="white" stroke-width="4"/>
+                <path d="M100 40 L130 80 L110 80 L110 140 L90 140 L90 80 L70 80 Z" fill="white"/>
+            </svg>`,
+            junction: `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                <path d="M80 0 L80 80 L0 80" stroke="black" stroke-width="15" fill="none"/>
+                <path d="M120 0 L120 200" stroke="black" stroke-width="15" fill="none"/>
+                <path d="M80 120 L80 200" stroke="black" stroke-width="15" fill="none"/>
+                <path d="M120 0 L140 20 L100 20" fill="#dc3545"/>
+            </svg>`
+        };
+
         // Questions data
         const questions = [
-            {cat: "Road Signs", q: "What does a red octagon sign mean?", opts: ["Stop", "Yield", "No Entry", "Slow"], ans: 0, 
+            {cat: "Road Signs", q: "What does this sign mean?", img: "stop", opts: ["Stop", "Yield", "No Entry", "Slow"], ans: 0, 
              so: {q: "Waa maxay micnaha calaamadda beddelan ee guduudan?", opts: ["Jooji", "U oggolow", "Gelin ma jirto", "Tartiib"], exp: "Calaamaddan waxay tahay STOP. Waa inaad si buuxda u joojiso."}},
-            {cat: "Road Signs", q: "What does a red triangle mean?", opts: ["Stop", "Give way", "Danger", "No parking"], ans: 1,
+            {cat: "Road Signs", q: "What does this sign mean?", img: "yield", opts: ["Stop", "Give way", "Danger", "No parking"], ans: 1,
              so: {q: "Waa maxay micnaha saddex-xagalka guduudan?", opts: ["Jooji", "Si u oggolow", "Khatar", "Ma jirto parkin"], exp: "Saddex-xagalka guduudan waxay kuu sheegaysaa inaad dadka kale si u oggolowdo."}},
-            {cat: "Road Signs", q: "What does 'No Entry' sign mean?", opts: ["Road closed", "No vehicles allowed", "One way", "Stop"], ans: 1,
+            {cat: "Road Signs", q: "What does this sign mean?", img: "noentry", opts: ["Road closed", "No vehicles allowed", "One way", "Stop"], ans: 1,
              so: {q: "Waa maxay micnaha 'No Entry'?", opts: ["Waddo xiran", "Gaariga lama oggola", "Hal dhinac", "Jooji"], exp: "Gaariga kuma soo gali karto waddadan."}},
-            {cat: "Rules", q: "Max speed in town?", opts: ["30", "50", "60", "80"], ans: 1,
+            {cat: "Rules", q: "What is the maximum speed limit in a built-up area?", img: "speed50", opts: ["30 km/h", "50 km/h", "60 km/h", "80 km/h"], ans: 1,
              so: {q: "Xadka magaalada?", opts: ["30", "50", "60", "80"], exp: "Xadka magaalada waa 50 km/h."}},
-            {cat: "Rules", q: "Max speed on national road?", opts: ["80", "100", "120", "140"], ans: 1,
+            {cat: "Rules", q: "What is the speed limit on a national primary road?", img: "speed100", opts: ["80 km/h", "100 km/h", "120 km/h", "140 km/h"], ans: 1,
              so: {q: "Xadka waddada qaranka?", opts: ["80", "100", "120", "140"], exp: "Waddooyinka qaranka waa 100 km/h."}},
-            {cat: "Rules", q: "Max speed on motorway?", opts: ["100", "110", "120", "130"], ans: 2,
+            {cat: "Rules", q: "What is the maximum speed on a motorway?", img: "speed120", opts: ["100 km/h", "110 km/h", "120 km/h", "130 km/h"], ans: 2,
              so: {q: "Xadka mootarada?", opts: ["100", "110", "120", "130"], exp: "Mootarada waa 120 km/h."}},
-            {cat: "Rules", q: "Who has right of way at roundabout?", opts: ["Left traffic", "Right traffic", "Entering traffic", "On roundabout"], ans: 3,
+            {cat: "Rules", q: "At a roundabout, who has right of way?", img: "roundabout", opts: ["Traffic on your left", "Traffic on your right", "Entering traffic", "Traffic already on roundabout"], ans: 3,
              so: {q: "Kuma leh awoodda isbitaallada?", opts: ["Bidix", "Midig", "Soo galaya", "Jooga"], exp: "Gaariga jooga isbitaallada ayaa leh awoodda."}},
-            {cat: "Vehicle", q: "Minimum tire tread depth?", opts: ["1.0mm", "1.6mm", "2.0mm", "3.0mm"], ans: 1,
+            {cat: "Vehicle", q: "What is the minimum legal tire tread depth?", img: "tire", opts: ["1.0 mm", "1.6 mm", "2.0 mm", "3.0 mm"], ans: 1,
              so: {q: "Qoto ugu yar ee tread?", opts: ["1.0mm", "1.6mm", "2.0mm", "3.0mm"], exp: "Qoto ugu yar waa 1.6 mm."}},
-            {cat: "Vehicle", q: "Stopping distance in wet?", opts: ["Same", "Double", "Triple", "Half"], ans: 1,
+            {cat: "Vehicle", q: "In wet conditions, how much should you increase stopping distance?", img: "wetroad", opts: ["Keep same", "Double", "Triple", "Half"], ans: 1,
              so: {q: "Masaafada joojinta roobka?", opts: ["Isku mid", "Laba jibbaar", "Sadex", "Nus"], exp: "Roobku wuu laba jibbaariyaa masaafada joojinta."}},
-            {cat: "Vehicle", q: "When use fog lights?", opts: ["Rain", "Fog <100m", "Night", "Always"], ans: 1,
+            {cat: "Vehicle", q: "When should you use fog lights?", img: "fog", opts: ["When raining", "When fog reduces visibility to less than 100m", "At night", "Always"], ans: 1,
              so: {q: "Goorma iftiinka ceeryaamada?", opts: ["Roob", "Ceeryaam <100m", "Habeen", "Had iyo jeer"], exp: "Kaliya marka ceeryaamadu yareyso aragtida 100m."}},
-            {cat: "Risk", q: "Safe following distance?", opts: ["1 sec", "2 sec", "4 sec", "10 sec"], ans: 1,
+            {cat: "Risk", q: "What is the recommended safe following distance in dry conditions?", img: "distance", opts: ["1 second gap", "2 second gap", "4 second gap", "10 second gap"], ans: 1,
              so: {q: "Masaafada ammaanka?", opts: ["1 ilbiriqsi", "2 ilbiriqsi", "4 ilbiriqsi", "10 ilbiriqsi"], exp: "2 ilbiriqsi waa masaafada ammaanka."}},
-            {cat: "Risk", q: "Mobile phone while driving?", opts: ["OK if slow", "Handsfree only", "Never", "At lights"], ans: 2,
+            {cat: "Risk", q: "When is it legal to use a handheld mobile phone while driving?", img: "phone", opts: ["When in slow traffic", "When using hands-free only", "Never while driving", "When stopped at traffic lights"], ans: 2,
              so: {q: "Telefoon marka la wado?", opts: ["OK haddii tartiib", "Handsfree", "Marnaba", "Iftiinka"], exp: "Telefoon gacanta waa sharci daran marka la wado."}},
-            {cat: "Safe", q: "Passing cyclist distance?", opts: ["0.5m", "1.0m", "1.5m", "2.0m"], ans: 1,
+            {cat: "Safe", q: "What is the minimum safe passing distance for a cyclist?", img: "cyclist", opts: ["0.5 meters", "1.0 meter", "1.5 meters", "2.0 meters"], ans: 1,
              so: {q: "Masaafada bisikilleyda?", opts: ["0.5m", "1.0m", "1.5m", "2.0m"], exp: "Ugu yaraan 1.0 mitir."}},
-            {cat: "Safe", q: "Who ensures kids wear seatbelts?", opts: ["Child", "Driver", "Parent", "Police"], ans: 1,
+            {cat: "Safe", q: "Who is responsible for ensuring children under 14 wear seatbelts?", img: "seatbelt", opts: ["The child", "The driver", "The parent only if present", "Nobody, it is optional"], ans: 1,
              so: {q: "Kuma masuul ka ah seatbelt ilmaha?", opts: ["Ilmaha", "Wadaha", "Waalid", "Boolis"], exp: "Wadaha ayaa masuul ka ah."}},
-            {cat: "Safe", q: "New driver alcohol limit?", opts: ["0.02%", "0.05%", "0.08%", "0.10%"], ans: 0,
+            {cat: "Safe", q: "What is the blood alcohol limit for a new driver (first 2 years)?", img: "alcohol", opts: ["0.02%", "0.05%", "0.08%", "0.10%"], ans: 0,
              so: {q: "Xadka alkoolka wadaha cusub?", opts: ["0.02%", "0.05%", "0.08%", "0.10%"], exp: "Wadaha cusub: 0.02% kaliya."}},
-            {cat: "Safe", q: "School zone approach?", opts: ["Speed up", "Horn", "Slow + ready stop", "Overtake"], ans: 2,
+            {cat: "Safe", q: "What should you do when approaching a school zone?", img: "school", opts: ["Sound horn to alert children", "Maintain speed, children should watch", "Reduce speed and be prepared to stop", "Overtake any slow vehicles"], ans: 2,
              so: {q: "Dugsiga marka la dhowaado?", opts: ["Degdegsi", "Buunsi", "Yaree + diyaar jooji", "Gudub"], exp: "Yaree xawaaraha oo diyaar u noqo inaad joojiso."}},
-            {cat: "Signs", q: "Blue circle with arrow?", opts: ["No turn", "Must turn", "Optional", "Stop"], ans: 1,
+            {cat: "Signs", q: "What does a blue circle with white arrow mean?", img: "bluearrow", opts: ["No turn allowed", "You must turn in direction shown", "Turn is optional", "Stop"], ans: 1,
              so: {q: "Goobada buluug ah ee fallaadh?", opts: ["Ma leexo", "Waa in la leexdo", "Ikhtiyaar", "Jooji"], exp: "Waa inaad leexdaa xagga lagu tilmaamay."}},
-            {cat: "Signs", q: "Yellow diamond sign?", opts: ["Warning", "Info", "Speed", "Stop"], ans: 0,
+            {cat: "Signs", q: "What does a yellow diamond sign mean?", img: "warning", opts: ["Warning of hazard ahead", "Information", "Speed limit", "Stop"], ans: 0,
              so: {q: "Calaamadda jaalaha huruudda ah?", opts: ["Digniin", "Xog", "Degdeg", "Jooji"], exp: "Calaamaddan waa digniin khatar ah."}},
-            {cat: "Vehicle", q: "Handbrake purpose?", opts: ["Emergency stop", "Hold when parked", "Slow down", "Drifting"], ans: 1,
+            {cat: "Vehicle", q: "What is the purpose of the handbrake?", img: "handbrake", opts: ["To stop quickly in emergency", "To hold vehicle stationary when parked", "To slow down gradually", "To replace foot brake"], ans: 1,
              so: {q: "Ujeeddada handbrake?", opts: ["Degdeg jooji", "Haynta parkiga", "Yareynta", "Drifting"], exp: "Handbrake waa in gaariga la haysto marka la parkigaro."}},
-            {cat: "Rules", q: "Unmarked junction priority?", opts: ["Right has priority", "Left has priority", "Biggest vehicle", "Fastest"], ans: 0,
+            {cat: "Rules", q: "At an unmarked junction, who has priority?", img: "junction", opts: ["Traffic from the right", "Traffic from the left", "The larger vehicle", "The faster vehicle"], ans: 0,
              so: {q: "Isgoysyada aan calaamad lahayn?", opts: ["Midig mudnaan", "Bidix mudnaan", "Ugu weyn", "Ugu degdegsan"], exp: "Trafic xagga midigta ayaa leh mudnaanta."}}
         ];
 
@@ -320,6 +433,15 @@
             document.getElementById('qNum').textContent = 'Q ' + (currentQ + 1) + '/20';
             document.getElementById('cat').textContent = q.cat;
             document.getElementById('qText').textContent = q.q;
+
+            // Display image if exists
+            const imgContainer = document.getElementById('signImage');
+            if (q.img && signImages[q.img]) {
+                imgContainer.innerHTML = signImages[q.img];
+                imgContainer.style.display = 'block';
+            } else {
+                imgContainer.style.display = 'none';
+            }
             document.getElementById('feedback').className = 'feedback';
 
             // Timer
@@ -342,8 +464,7 @@
             });
             document.getElementById('options').innerHTML = html;
 
-            // Auto speak after delay
-            setTimeout(speakCurrent, 500);
+            // Audio is now manual - user clicks button to play
         }
 
         function startTimer() {
@@ -445,4 +566,4 @@
         show('login');
     </script>
 </body>
-              </html>
+</html>
