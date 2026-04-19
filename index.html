@@ -1,1 +1,448 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Ireland Driving Test - Somali Audio</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: Arial, sans-serif; 
+            background: #1e3c72; 
+            min-height: 100vh; 
+            color: #333;
+        }
+        .container { max-width: 600px; margin: 0 auto; padding: 10px; }
+
+        /* Login */
+        .login-box {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-top: 50px;
+            text-align: center;
+        }
+        .login-box h1 { color: #1e3c72; margin-bottom: 10px; font-size: 24px; }
+        .code-hint { 
+            background: #e3f2fd; 
+            padding: 10px; 
+            border-radius: 8px; 
+            margin: 15px 0; 
+            font-size: 14px; 
+            color: #1976d2; 
+        }
+        input {
+            width: 100%;
+            padding: 15px;
+            font-size: 18px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            margin: 10px 0;
+            text-align: center;
+        }
+        button {
+            width: 100%;
+            padding: 15px;
+            font-size: 18px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        button:active { background: #764ba2; }
+        .error { color: red; margin-top: 10px; display: none; }
+
+        /* Home */
+        .home { display: none; text-align: center; padding: 20px 0; }
+        .home h1 { color: white; margin-bottom: 20px; }
+        .mode-btn {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin: 15px 0;
+            cursor: pointer;
+        }
+        .mode-btn h2 { color: #1e3c72; margin-bottom: 5px; }
+        .mode-btn p { color: #666; font-size: 14px; }
+
+        /* Quiz */
+        .quiz { display: none; }
+        .quiz-header {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .timer { color: #e74c3c; font-weight: bold; font-size: 20px; }
+        .q-card {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 15px;
+        }
+        .category {
+            background: #e3f2fd;
+            color: #1976d2;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+        .q-text { font-size: 18px; font-weight: bold; margin-bottom: 15px; color: #1e3c72; }
+        .audio-btn {
+            background: #4caf50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            margin-bottom: 15px;
+        }
+        .option {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+        }
+        .option:active { background: #e3f2fd; }
+        .opt-letter {
+            background: #1e3c72;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+            font-weight: bold;
+        }
+        .opt-audio {
+            margin-left: auto;
+            background: #4caf50;
+            color: white;
+            border: none;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+        }
+        .correct { background: #c8e6c9 !important; }
+        .wrong { background: #ffcdd2 !important; }
+
+        .feedback {
+            display: none;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+            text-align: center;
+        }
+        .feedback.show { display: block; }
+        .feedback.correct { background: #c8e6c9; color: #2e7d32; }
+        .feedback.wrong { background: #ffcdd2; color: #c62828; }
+
+        /* Results */
+        .results { display: none; text-align: center; }
+        .r-card {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+        .score-circle {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            font-weight: bold;
+            color: white;
+        }
+        .pass { background: #4caf50; }
+        .fail { background: #f44336; }
+
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- LOGIN -->
+        <div id="login" class="login-box">
+            <h1>🚗 Ireland Driving Test</h1>
+            <p style="color: #666; margin-bottom: 15px;">Somali Audio Learning</p>
+            <div class="code-hint">🔑 Access Code: <strong>Xarbi1234</strong></div>
+            <input type="text" id="codeInput" placeholder="Enter code here" autocomplete="off">
+            <button onclick="doLogin()">ENTER</button>
+            <p id="loginError" class="error">Wrong code. Use: Xarbi1234</p>
+        </div>
+
+        <!-- HOME -->
+        <div id="home" class="home">
+            <h1>Choose Mode</h1>
+            <div class="mode-btn" onclick="startQuiz('practice')">
+                <h2>📚 Practice Mode</h2>
+                <p>No timer. Learn at your own pace.</p>
+            </div>
+            <div class="mode-btn" onclick="startQuiz('test')">
+                <h2>⏱️ Test Mode</h2>
+                <p>2 min per question. 16/20 to pass.</p>
+            </div>
+        </div>
+
+        <!-- QUIZ -->
+        <div id="quiz" class="quiz">
+            <div class="quiz-header">
+                <span id="qNum">Q 1/20</span>
+                <span class="timer" id="timer">02:00</span>
+            </div>
+
+            <div class="q-card">
+                <span class="category" id="cat">Road Signs</span>
+                <div class="q-text" id="qText">Question here</div>
+                <button class="audio-btn" onclick="speakCurrent()">🔊 Play Somali</button>
+
+                <div id="options"></div>
+
+                <div id="feedback" class="feedback">
+                    <h3 id="fbTitle">Correct!</h3>
+                    <p id="fbText" style="margin: 10px 0;"></p>
+                    <button onclick="nextQ()" style="margin-top: 15px;">Next →</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- RESULTS -->
+        <div id="results" class="results">
+            <div class="r-card">
+                <div class="score-circle" id="scoreCircle">0/20</div>
+                <h2 id="rTitle">Done!</h2>
+                <p id="rMsg"></p>
+            </div>
+            <button onclick="goHome()">🏠 Home</button>
+            <button onclick="location.reload()" style="margin-top: 10px;">🔄 Restart</button>
+        </div>
+    </div>
+
+    <script>
+        // Questions data
+        const questions = [
+            {cat: "Road Signs", q: "What does a red octagon sign mean?", opts: ["Stop", "Yield", "No Entry", "Slow"], ans: 0, 
+             so: {q: "Waa maxay micnaha calaamadda beddelan ee guduudan?", opts: ["Jooji", "U oggolow", "Gelin ma jirto", "Tartiib"], exp: "Calaamaddan waxay tahay STOP. Waa inaad si buuxda u joojiso."}},
+            {cat: "Road Signs", q: "What does a red triangle mean?", opts: ["Stop", "Give way", "Danger", "No parking"], ans: 1,
+             so: {q: "Waa maxay micnaha saddex-xagalka guduudan?", opts: ["Jooji", "Si u oggolow", "Khatar", "Ma jirto parkin"], exp: "Saddex-xagalka guduudan waxay kuu sheegaysaa inaad dadka kale si u oggolowdo."}},
+            {cat: "Road Signs", q: "What does 'No Entry' sign mean?", opts: ["Road closed", "No vehicles allowed", "One way", "Stop"], ans: 1,
+             so: {q: "Waa maxay micnaha 'No Entry'?", opts: ["Waddo xiran", "Gaariga lama oggola", "Hal dhinac", "Jooji"], exp: "Gaariga kuma soo gali karto waddadan."}},
+            {cat: "Rules", q: "Max speed in town?", opts: ["30", "50", "60", "80"], ans: 1,
+             so: {q: "Xadka magaalada?", opts: ["30", "50", "60", "80"], exp: "Xadka magaalada waa 50 km/h."}},
+            {cat: "Rules", q: "Max speed on national road?", opts: ["80", "100", "120", "140"], ans: 1,
+             so: {q: "Xadka waddada qaranka?", opts: ["80", "100", "120", "140"], exp: "Waddooyinka qaranka waa 100 km/h."}},
+            {cat: "Rules", q: "Max speed on motorway?", opts: ["100", "110", "120", "130"], ans: 2,
+             so: {q: "Xadka mootarada?", opts: ["100", "110", "120", "130"], exp: "Mootarada waa 120 km/h."}},
+            {cat: "Rules", q: "Who has right of way at roundabout?", opts: ["Left traffic", "Right traffic", "Entering traffic", "On roundabout"], ans: 3,
+             so: {q: "Kuma leh awoodda isbitaallada?", opts: ["Bidix", "Midig", "Soo galaya", "Jooga"], exp: "Gaariga jooga isbitaallada ayaa leh awoodda."}},
+            {cat: "Vehicle", q: "Minimum tire tread depth?", opts: ["1.0mm", "1.6mm", "2.0mm", "3.0mm"], ans: 1,
+             so: {q: "Qoto ugu yar ee tread?", opts: ["1.0mm", "1.6mm", "2.0mm", "3.0mm"], exp: "Qoto ugu yar waa 1.6 mm."}},
+            {cat: "Vehicle", q: "Stopping distance in wet?", opts: ["Same", "Double", "Triple", "Half"], ans: 1,
+             so: {q: "Masaafada joojinta roobka?", opts: ["Isku mid", "Laba jibbaar", "Sadex", "Nus"], exp: "Roobku wuu laba jibbaariyaa masaafada joojinta."}},
+            {cat: "Vehicle", q: "When use fog lights?", opts: ["Rain", "Fog <100m", "Night", "Always"], ans: 1,
+             so: {q: "Goorma iftiinka ceeryaamada?", opts: ["Roob", "Ceeryaam <100m", "Habeen", "Had iyo jeer"], exp: "Kaliya marka ceeryaamadu yareyso aragtida 100m."}},
+            {cat: "Risk", q: "Safe following distance?", opts: ["1 sec", "2 sec", "4 sec", "10 sec"], ans: 1,
+             so: {q: "Masaafada ammaanka?", opts: ["1 ilbiriqsi", "2 ilbiriqsi", "4 ilbiriqsi", "10 ilbiriqsi"], exp: "2 ilbiriqsi waa masaafada ammaanka."}},
+            {cat: "Risk", q: "Mobile phone while driving?", opts: ["OK if slow", "Handsfree only", "Never", "At lights"], ans: 2,
+             so: {q: "Telefoon marka la wado?", opts: ["OK haddii tartiib", "Handsfree", "Marnaba", "Iftiinka"], exp: "Telefoon gacanta waa sharci daran marka la wado."}},
+            {cat: "Safe", q: "Passing cyclist distance?", opts: ["0.5m", "1.0m", "1.5m", "2.0m"], ans: 1,
+             so: {q: "Masaafada bisikilleyda?", opts: ["0.5m", "1.0m", "1.5m", "2.0m"], exp: "Ugu yaraan 1.0 mitir."}},
+            {cat: "Safe", q: "Who ensures kids wear seatbelts?", opts: ["Child", "Driver", "Parent", "Police"], ans: 1,
+             so: {q: "Kuma masuul ka ah seatbelt ilmaha?", opts: ["Ilmaha", "Wadaha", "Waalid", "Boolis"], exp: "Wadaha ayaa masuul ka ah."}},
+            {cat: "Safe", q: "New driver alcohol limit?", opts: ["0.02%", "0.05%", "0.08%", "0.10%"], ans: 0,
+             so: {q: "Xadka alkoolka wadaha cusub?", opts: ["0.02%", "0.05%", "0.08%", "0.10%"], exp: "Wadaha cusub: 0.02% kaliya."}},
+            {cat: "Safe", q: "School zone approach?", opts: ["Speed up", "Horn", "Slow + ready stop", "Overtake"], ans: 2,
+             so: {q: "Dugsiga marka la dhowaado?", opts: ["Degdegsi", "Buunsi", "Yaree + diyaar jooji", "Gudub"], exp: "Yaree xawaaraha oo diyaar u noqo inaad joojiso."}},
+            {cat: "Signs", q: "Blue circle with arrow?", opts: ["No turn", "Must turn", "Optional", "Stop"], ans: 1,
+             so: {q: "Goobada buluug ah ee fallaadh?", opts: ["Ma leexo", "Waa in la leexdo", "Ikhtiyaar", "Jooji"], exp: "Waa inaad leexdaa xagga lagu tilmaamay."}},
+            {cat: "Signs", q: "Yellow diamond sign?", opts: ["Warning", "Info", "Speed", "Stop"], ans: 0,
+             so: {q: "Calaamadda jaalaha huruudda ah?", opts: ["Digniin", "Xog", "Degdeg", "Jooji"], exp: "Calaamaddan waa digniin khatar ah."}},
+            {cat: "Vehicle", q: "Handbrake purpose?", opts: ["Emergency stop", "Hold when parked", "Slow down", "Drifting"], ans: 1,
+             so: {q: "Ujeeddada handbrake?", opts: ["Degdeg jooji", "Haynta parkiga", "Yareynta", "Drifting"], exp: "Handbrake waa in gaariga la haysto marka la parkigaro."}},
+            {cat: "Rules", q: "Unmarked junction priority?", opts: ["Right has priority", "Left has priority", "Biggest vehicle", "Fastest"], ans: 0,
+             so: {q: "Isgoysyada aan calaamad lahayn?", opts: ["Midig mudnaan", "Bidix mudnaan", "Ugu weyn", "Ugu degdegsan"], exp: "Trafic xagga midigta ayaa leh mudnaanta."}}
+        ];
+
+        let mode = '';
+        let currentQ = 0;
+        let score = 0;
+        let timer = null;
+        let timeLeft = 120;
+        let answered = false;
+
+        function show(id) {
+            document.querySelectorAll('.container > div').forEach(d => d.style.display = 'none');
+            document.getElementById(id).style.display = 'block';
+        }
+
+        function doLogin() {
+            const code = document.getElementById('codeInput').value.trim();
+            if (code === 'Xarbi1234') {
+                show('home');
+            } else {
+                document.getElementById('loginError').style.display = 'block';
+            }
+        }
+
+        // Enter key support
+        document.getElementById('codeInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') doLogin();
+        });
+
+        function startQuiz(m) {
+            mode = m;
+            currentQ = 0;
+            score = 0;
+            show('quiz');
+            loadQ();
+        }
+
+        function loadQ() {
+            const q = questions[currentQ];
+            answered = false;
+
+            document.getElementById('qNum').textContent = 'Q ' + (currentQ + 1) + '/20';
+            document.getElementById('cat').textContent = q.cat;
+            document.getElementById('qText').textContent = q.q;
+            document.getElementById('feedback').className = 'feedback';
+
+            // Timer
+            if (mode === 'test') {
+                timeLeft = 120;
+                document.getElementById('timer').style.display = 'inline';
+                startTimer();
+            } else {
+                document.getElementById('timer').style.display = 'none';
+            }
+
+            // Options
+            let html = '';
+            q.opts.forEach((opt, i) => {
+                html += '<div class="option" onclick="select(' + i + ')">';
+                html += '<div class="opt-letter">' + String.fromCharCode(65+i) + '</div>';
+                html += '<div style="flex:1">' + opt + '</div>';
+                html += '<button class="opt-audio" onclick="speakOpt(' + i + ', event)">🔊</button>';
+                html += '</div>';
+            });
+            document.getElementById('options').innerHTML = html;
+
+            // Auto speak after delay
+            setTimeout(speakCurrent, 500);
+        }
+
+        function startTimer() {
+            clearInterval(timer);
+            updateTimer();
+            timer = setInterval(function() {
+                timeLeft--;
+                updateTimer();
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    if (!answered) select(-1);
+                }
+            }, 1000);
+        }
+
+        function updateTimer() {
+            const m = Math.floor(timeLeft / 60);
+            const s = timeLeft % 60;
+            document.getElementById('timer').textContent = 
+                (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
+        }
+
+        function select(idx) {
+            if (answered) return;
+            answered = true;
+            clearInterval(timer);
+
+            const q = questions[currentQ];
+            const correct = idx === q.ans;
+            if (correct) score++;
+
+            // Visual
+            const opts = document.querySelectorAll('.option');
+            opts.forEach((opt, i) => {
+                if (i === q.ans) opt.classList.add('correct');
+                else if (i === idx && !correct) opt.classList.add('wrong');
+            });
+
+            // Feedback
+            const fb = document.getElementById('feedback');
+            fb.className = 'feedback show ' + (correct ? 'correct' : 'wrong');
+            document.getElementById('fbTitle').textContent = correct ? '✅ Correct!' : '❌ Wrong!';
+            document.getElementById('fbText').textContent = q.so.exp;
+
+            // Speak explanation
+            setTimeout(function() {
+                speak(q.so.exp);
+            }, 300);
+        }
+
+        function nextQ() {
+            currentQ++;
+            if (currentQ >= questions.length) {
+                showResults();
+            } else {
+                loadQ();
+            }
+        }
+
+        function showResults() {
+            show('results');
+            const pass = score >= 16;
+            document.getElementById('scoreCircle').textContent = score + '/20';
+            document.getElementById('scoreCircle').className = 'score-circle ' + (pass ? 'pass' : 'fail');
+            document.getElementById('rTitle').textContent = pass ? '🎉 PASSED!' : '❌ Failed';
+            document.getElementById('rMsg').textContent = pass ? 
+                'Great job! You scored ' + score + '/20 (80%+ needed)' : 
+                'You got ' + score + '/20. Need 16/20 to pass. Try again!';
+        }
+
+        function goHome() {
+            show('home');
+        }
+
+        // Audio functions
+        function speak(text) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                var u = new SpeechSynthesisUtterance(text);
+                u.lang = 'so-SO';
+                u.rate = 0.9;
+                window.speechSynthesis.speak(u);
+            } else {
+                alert('Audio not supported on this device');
+            }
+        }
+
+        function speakCurrent() {
+            const q = questions[currentQ];
+            speak(q.so.q + '. Options: ' + q.so.opts.join('. '));
+        }
+
+        function speakOpt(idx, e) {
+            e.stopPropagation();
+            speak(questions[currentQ].so.opts[idx]);
+        }
+
+        // Init
+        show('login');
+    </script>
+</body>
+              </html>
