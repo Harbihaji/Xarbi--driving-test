@@ -93,16 +93,32 @@
             display: inline-block;
             margin-bottom: 10px;
         }
-        .q-text { font-size: 18px; font-weight: bold; margin-bottom: 15px; color: #1e3c72; }
-        .audio-btn {
+        .q-text { font-size: 18px; font-weight: bold; margin-bottom: 10px; color: #1e3c72; }
+        
+        /* Question Audio Section */
+        .question-audio-section {
+            background: #e8f5e9;
+            border: 2px solid #4caf50;
+            border-radius: 10px;
+            padding: 12px;
+            margin: 15px 0;
+            text-align: center;
+        }
+        .question-audio-btn {
             background: #4caf50;
             color: white;
             border: none;
-            padding: 10px 20px;
-            border-radius: 20px;
+            padding: 12px 24px;
+            border-radius: 25px;
             cursor: pointer;
-            margin-bottom: 15px;
+            font-size: 16px;
+            font-weight: bold;
+            width: auto;
+            display: inline-block;
         }
+        .question-audio-btn:active { background: #388e3c; }
+
+        /* Answer Option with Integrated Audio */
         .option {
             background: #f5f5f5;
             padding: 15px;
@@ -124,16 +140,25 @@
             justify-content: center;
             margin-right: 10px;
             font-weight: bold;
+            flex-shrink: 0;
         }
-        .opt-audio {
-            margin-left: auto;
-            background: #4caf50;
+        .opt-text {
+            flex: 1;
+            font-size: 16px;
+        }
+        .opt-audio-btn {
+            background: #ff9800;
             color: white;
             border: none;
-            width: 35px;
-            height: 35px;
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
+            cursor: pointer;
+            font-size: 16px;
+            flex-shrink: 0;
+            margin-left: 10px;
         }
+        .opt-audio-btn:active { background: #f57c00; }
         .correct { background: #c8e6c9 !important; }
         .wrong { background: #ffcdd2 !important; }
 
@@ -210,13 +235,24 @@
                 <span class="category" id="cat">Road Signs</span>
                 <div class="q-text" id="qText">Question here</div>
                 <div id="signImage" class="sign-image" style="display:none; margin: 15px auto; max-width: 200px;"></div>
-                <button class="audio-btn" onclick="speakCurrent()">🔊 Play Somali</button>
+                
+                <!-- QUESTION AUDIO CONTROL -->
+                <div class="question-audio-section">
+                    <div style="font-size: 14px; color: #2e7d32; margin-bottom: 8px; font-weight: bold;">📢 Question Audio (Somali)</div>
+                    <button class="question-audio-btn" onclick="speakCurrentQuestion()">🔊 Play Question</button>
+                </div>
 
+                <!-- ANSWER OPTIONS WITH INTEGRATED AUDIO -->
                 <div id="options"></div>
 
                 <div id="feedback" class="feedback">
                     <h3 id="fbTitle">Correct!</h3>
                     <p id="fbText" style="margin: 10px 0;"></p>
+                    <!-- Explanation Audio - Manual Only -->
+                    <div style="background: #e3f2fd; border: 2px solid #1976d2; border-radius: 10px; padding: 12px; margin: 15px 0;">
+                        <div style="font-size: 14px; color: #1976d2; margin-bottom: 8px; font-weight: bold;">📝 Explanation Audio (Somali)</div>
+                        <button class="question-audio-btn" style="background: #1976d2;" onclick="speakExplanation()">🔊 Play Explanation</button>
+                    </div>
                     <button onclick="nextQ()" style="margin-top: 15px;">Next →</button>
                 </div>
             </div>
@@ -442,6 +478,8 @@
             } else {
                 imgContainer.style.display = 'none';
             }
+            
+            // Hide feedback section
             document.getElementById('feedback').className = 'feedback';
 
             // Timer
@@ -453,18 +491,19 @@
                 document.getElementById('timer').style.display = 'none';
             }
 
-            // Options
+            // Build answer options WITH integrated audio buttons - ONLY ONE SET
             let html = '';
             q.opts.forEach((opt, i) => {
                 html += '<div class="option" onclick="select(' + i + ')">';
                 html += '<div class="opt-letter">' + String.fromCharCode(65+i) + '</div>';
-                html += '<div style="flex:1">' + opt + '</div>';
-                html += '<button class="opt-audio" onclick="speakOpt(' + i + ', event)">🔊</button>';
+                html += '<div class="opt-text">' + opt + '</div>';
+                html += '<button class="opt-audio-btn" onclick="speakOpt(' + i + ', event)">🔊</button>';
                 html += '</div>';
             });
             document.getElementById('options').innerHTML = html;
 
-            // Audio is now manual - user clicks button to play
+            // NO AUTO AUDIO ANYWHERE
+            // NO DUPLICATE ANSWER SECTIONS
         }
 
         function startTimer() {
@@ -496,23 +535,20 @@
             const correct = idx === q.ans;
             if (correct) score++;
 
-            // Visual
+            // Visual feedback
             const opts = document.querySelectorAll('.option');
             opts.forEach((opt, i) => {
                 if (i === q.ans) opt.classList.add('correct');
                 else if (i === idx && !correct) opt.classList.add('wrong');
             });
 
-            // Feedback
+            // Show feedback section
             const fb = document.getElementById('feedback');
             fb.className = 'feedback show ' + (correct ? 'correct' : 'wrong');
             document.getElementById('fbTitle').textContent = correct ? '✅ Correct!' : '❌ Wrong!';
             document.getElementById('fbText').textContent = q.so.exp;
 
-            // Speak explanation
-            setTimeout(function() {
-                speak(q.so.exp);
-            }, 300);
+            // NO AUTO AUDIO - User must click explanation button manually
         }
 
         function nextQ() {
@@ -539,7 +575,7 @@
             show('home');
         }
 
-        // Audio functions
+        // Audio functions - ALL MANUAL, ALL SEPARATE
         function speak(text) {
             if ('speechSynthesis' in window) {
                 window.speechSynthesis.cancel();
@@ -552,14 +588,22 @@
             }
         }
 
-        function speakCurrent() {
+        // SEPARATE: Play only the question audio (Somali)
+        function speakCurrentQuestion() {
             const q = questions[currentQ];
-            speak(q.so.q + '. Options: ' + q.so.opts.join('. '));
+            speak(q.so.q);
         }
 
+        // SEPARATE: Play only one answer audio (Somali)
         function speakOpt(idx, e) {
-            e.stopPropagation();
+            e.stopPropagation(); // Prevent triggering option selection
             speak(questions[currentQ].so.opts[idx]);
+        }
+
+        // SEPARATE: Play only the explanation audio (Somali)
+        function speakExplanation() {
+            const q = questions[currentQ];
+            speak(q.so.exp);
         }
 
         // Init
